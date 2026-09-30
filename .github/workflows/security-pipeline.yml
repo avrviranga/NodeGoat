@@ -14,7 +14,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # Gitleaks needs full history
+          fetch-depth: 0 # Gitleaks needs full history
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -51,22 +51,22 @@ jobs:
         run: docker build -t nodegoat-web:latest .
 
       - name: Container Scan - Trivy
-        uses: aquasecurity/trivy-action@v0.36.0   # pinned instead of @master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: nodegoat-web:latest
           format: table
           output: trivy-report.txt
-          exit-code: '0'          # report-only
+          exit-code: '1'
           ignore-unfixed: true
-severity: 'LOW,MEDIUM,HIGH,CRITICAL'
+          severity: 'LOW,MEDIUM,HIGH,CRITICAL'
 
-# ---------- Keep every report as evidence for the assignment ----------
-- name: Upload scan reports
-  if: always()
-  uses: actions/upload-artifact@v4
-  with:
-    name: security-reports
-    path: |
-      semgrep.sarif
-      npm-audit.json
-      trivy-report.txt
+      # ---------- Keep every report as evidence for the assignment ----------
+      - name: Upload scan reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            semgrep.sarif
+            npm-audit.json
+            trivy-report.txt
