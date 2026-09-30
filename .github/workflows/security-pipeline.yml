@@ -51,7 +51,7 @@ jobs:
         run: docker build -t nodegoat-web:latest .
 
       - name: Container Scan - Trivy
-        uses: aquasecurity/trivy-action@0.28.0   # pinned instead of @master
+        uses: aquasecurity/trivy-action@v0.36.0   # pinned instead of @master
         with:
           image-ref: nodegoat-web:latest
           format: table
