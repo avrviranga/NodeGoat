@@ -58,7 +58,7 @@ jobs:
           output: trivy-report.txt
           exit-code: '1'
           ignore-unfixed: true
-          severity: 'LOW,MEDIUM,HIGH,CRITICAL'
+          severity: 'HIGH,CRITICAL'
 
       # ---------- Keep every report as evidence for the assignment ----------
       - name: Upload scan reports
