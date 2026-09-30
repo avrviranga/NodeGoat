@@ -58,15 +58,15 @@ jobs:
           output: trivy-report.txt
           exit-code: '0'          # report-only
           ignore-unfixed: true
-          severity: 'HIGH,CRITICAL'
+severity: 'LOW,MEDIUM,HIGH,CRITICAL'
 
-      # ---------- Keep every report as evidence for the assignment ----------
-      - name: Upload scan reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-reports
-          path: |
-            semgrep.sarif
-            npm-audit.json
-            trivy-report.txt
+# ---------- Keep every report as evidence for the assignment ----------
+- name: Upload scan reports
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: security-reports
+    path: |
+      semgrep.sarif
+      npm-audit.json
+      trivy-report.txt
