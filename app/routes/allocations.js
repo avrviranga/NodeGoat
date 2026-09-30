@@ -10,9 +10,7 @@ function AllocationsHandler(db) {
 
     this.displayAllocations = (req, res, next) => {
         const { userId } = req.session;   // IT24101430 Jayashan D H J -- Fix Insecure DOR - take user id from session instead of from URL parameter
-        const {
-            threshold
-        } = req.query;
+        const { threshold } = req.query;
 
         allocationsDAO.getByUserIdAndThreshold(userId, threshold, (err, allocations) => {
             if (err) return next(err);
