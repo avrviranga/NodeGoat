@@ -30,7 +30,7 @@ jobs:
           auditOn: push
 
       - name: Dependency Scan - npm audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=moderate
         continue-on-error: true
 
       - name: Secret Scan - Gitleaks
