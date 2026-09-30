@@ -1,0 +1,72 @@
+name: NodeGoat Security Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Gitleaks needs full history
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      # ---------- SAST ----------
+      - name: Semgrep SAST
+        run: |
+          pip install semgrep
+          semgrep scan --config p/javascript --sarif --output semgrep.sarif .
+        continue-on-error: true
+
+      # ---------- Dependency scan (report-only: NodeGoat is intentionally vulnerable) ----------
+      - name: Dependency Scan - npm audit
+        run: |
+          npm audit --json > npm-audit.json || true
+          npm audit --audit-level=high || true
+        continue-on-error: true
+
+      # ---------- Secrets ----------
+      - name: Secret Scan - Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      # ---------- Container ----------
+      - name: Build Docker image
+        run: docker build -t nodegoat-web:latest .
+
+      - name: Container Scan - Trivy
+        uses: aquasecurity/trivy-action@0.28.0   # pinned instead of @master
+        with:
+          image-ref: nodegoat-web:latest
+          format: table
+          output: trivy-report.txt
+          exit-code: '0'          # report-only
+          ignore-unfixed: true
+          severity: 'HIGH,CRITICAL'
+
+      # ---------- Keep every report as evidence for the assignment ----------
+      - name: Upload scan reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            semgrep.sarif
+            npm-audit.json
+            trivy-report.txt
